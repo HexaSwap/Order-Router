@@ -1,1 +1,5 @@
-# Order-router
+# PanCake Exchange Contracts 🥞
+
+PancakeFactoryV2: 0x2D86172bAA0B6537D1b96428A13DcE70B04F9737 
+
+PancakeRouterV2: 0x596C1CA32Cf3Fc5224E5cD2Daf54CFd822156761
