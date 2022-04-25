@@ -988,7 +988,7 @@ contract PancakeRouterV2 is IPancakeRouter02 {
     ) internal virtual returns (uint256 amountAdjusted) {
         bool feeOn = swappingFeeTo != address(0);
         if (feeOn) {
-            uint256 fee_amount = amount.mul(20).div(1000);
+            uint256 fee_amount = amount.mul(20).div(10000);
             TransferHelper.safeTransfer(token, swappingFeeTo, fee_amount);
             amountAdjusted = amount.sub(fee_amount);
         } else {
@@ -1001,7 +1001,7 @@ contract PancakeRouterV2 is IPancakeRouter02 {
     ) internal virtual returns (uint256 amountAdjusted) {
         bool feeOn = swappingFeeTo != address(0);
         if (feeOn) {
-            uint256 fee_amount = amount.mul(20).div(1000);
+            uint256 fee_amount = amount.mul(20).div(10000);
             TransferHelper.safeTransferETH(swappingFeeTo, fee_amount);
             amountAdjusted = amount.sub(fee_amount);
         } else {
