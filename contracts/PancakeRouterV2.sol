@@ -272,6 +272,14 @@ interface IPancakeRouter02 is IPancakeRouter01 {
         address to,
         uint256 deadline
     ) external;
+
+    function swappingFeeTo() external view returns (address);
+
+    function feeToSetter() external view returns (address);
+
+    function setSwappingFeeTo(address) external;
+
+    function setFeeToSetter(address) external;
 }
 
 // File: contracts\interfaces\IPancakeFactory.sol
@@ -327,6 +335,10 @@ library SafeMath {
 
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require(y == 0 || (z = x * y) / y == x, "ds-math-mul-overflow");
+    }
+
+    function div(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        require(y == 0 || (z = x / y) * y == x, "ds-math-div-overflow");
     }
 }
 
@@ -645,15 +657,18 @@ contract PancakeRouterV2 is IPancakeRouter02 {
 
     address public immutable override factory;
     address public immutable override WETH;
+    address public override feeToSetter;
+    address public override swappingFeeTo;
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "PancakeRouter: EXPIRED");
         _;
     }
 
-    constructor(address _factory, address _WETH) public {
+    constructor(address _factory, address _WETH, address _feeToSetter) public {
         factory = _factory;
         WETH = _WETH;
+        feeToSetter = _feeToSetter;
     }
 
     receive() external payable {
@@ -1006,6 +1021,7 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
+        
         amounts = PancakeLibrary.getAmountsOut(factory, amountIn, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
@@ -1320,5 +1336,15 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         returns (uint256[] memory amounts)
     {
         return PancakeLibrary.getAmountsIn(factory, amountOut, path);
+    }
+
+    function setSwappingFeeTo(address _feeTo) external override {
+        require(msg.sender == feeToSetter, "Pancake: FORBIDDEN");
+        swappingFeeTo = _feeTo;
+    }
+
+    function setFeeToSetter(address _feeToSetter) external override {
+        require(msg.sender == feeToSetter, "Pancake: FORBIDDEN");
+        feeToSetter = _feeToSetter;
     }
 }
