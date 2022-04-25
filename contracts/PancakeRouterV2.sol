@@ -982,6 +982,33 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         );
     }
 
+    function _transferSwappingFee(
+        address token,
+        uint256 amount
+    ) internal virtual returns (uint256 amountAdjusted) {
+        bool feeOn = swappingFeeTo != address(0);
+        if (feeOn) {
+            uint256 fee_amount = amount.mul(20).div(1000);
+            TransferHelper.safeTransfer(token, swappingFeeTo, fee_amount);
+            amountAdjusted = amount.sub(fee_amount);
+        } else {
+            amountAdjusted = amount;
+        }
+    }
+
+    function _transferETHSwappingFee(
+        uint256 amount
+    ) internal virtual returns (uint256 amountAdjusted) {
+        bool feeOn = swappingFeeTo != address(0);
+        if (feeOn) {
+            uint256 fee_amount = amount.mul(20).div(1000);
+            TransferHelper.safeTransferETH(swappingFeeTo, fee_amount);
+            amountAdjusted = amount.sub(fee_amount);
+        } else {
+            amountAdjusted = amount;
+        }
+    }
+
     // **** SWAP ****
     // requires the initial amount to have already been sent to the first pair
     function _swap(
@@ -1021,8 +1048,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        
-        amounts = PancakeLibrary.getAmountsOut(factory, amountIn, path);
+        uint256 amountInAdjusted = _transferSwappingFee(path[0], amountIn);
+        amounts = PancakeLibrary.getAmountsOut(factory, amountInAdjusted, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT"
@@ -1049,7 +1076,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        amounts = PancakeLibrary.getAmountsIn(factory, amountOut, path);
+        uint256 amountOutAdjusted = _transferSwappingFee(path[0], amountOut);
+        amounts = PancakeLibrary.getAmountsIn(factory, amountOutAdjusted, path);
         require(
             amounts[0] <= amountInMax,
             "PancakeRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -1077,7 +1105,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[0] == WETH, "PancakeRouter: INVALID_PATH");
-        amounts = PancakeLibrary.getAmountsOut(factory, msg.value, path);
+        uint256 amountAdjusted = _transferETHSwappingFee(msg.value);
+        amounts = PancakeLibrary.getAmountsOut(factory, amountAdjusted, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT"
@@ -1106,7 +1135,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[path.length - 1] == WETH, "PancakeRouter: INVALID_PATH");
-        amounts = PancakeLibrary.getAmountsIn(factory, amountOut, path);
+        uint256 amountOutAdjusted = _transferSwappingFee(path[0], amountOut);
+        amounts = PancakeLibrary.getAmountsIn(factory, amountOutAdjusted, path);
         require(
             amounts[0] <= amountInMax,
             "PancakeRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -1136,7 +1166,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[path.length - 1] == WETH, "PancakeRouter: INVALID_PATH");
-        amounts = PancakeLibrary.getAmountsOut(factory, amountIn, path);
+        uint256 amountInAdjusted = _transferSwappingFee(path[0], amountIn);
+        amounts = PancakeLibrary.getAmountsOut(factory, amountInAdjusted, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT"
@@ -1166,7 +1197,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[0] == WETH, "PancakeRouter: INVALID_PATH");
-        amounts = PancakeLibrary.getAmountsIn(factory, amountOut, path);
+        uint256 amountOutAdjusted = _transferETHSwappingFee(amountOut);
+        amounts = PancakeLibrary.getAmountsIn(factory, amountOutAdjusted, path);
         require(
             amounts[0] <= msg.value,
             "PancakeRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -1230,11 +1262,12 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         address to,
         uint256 deadline
     ) external virtual override ensure(deadline) {
+        uint256 amountInAdjusted = _transferSwappingFee(path[0], amountIn);
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
             PancakeLibrary.pairFor(factory, path[0], path[1]),
-            amountIn
+            amountInAdjusted
         );
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(path, to);
@@ -1252,7 +1285,7 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
         require(path[0] == WETH, "PancakeRouter: INVALID_PATH");
-        uint256 amountIn = msg.value;
+        uint256 amountIn = _transferETHSwappingFee(msg.value);
         IWETH(WETH).deposit{value: amountIn}();
         assert(
             IWETH(WETH).transfer(
@@ -1277,11 +1310,12 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         uint256 deadline
     ) external virtual override ensure(deadline) {
         require(path[path.length - 1] == WETH, "PancakeRouter: INVALID_PATH");
+        uint256 amountInAdjusted = _transferSwappingFee(path[0], amountIn);
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
             PancakeLibrary.pairFor(factory, path[0], path[1]),
-            amountIn
+            amountInAdjusted
         );
         _swapSupportingFeeOnTransferTokens(path, address(this));
         uint256 amountOut = IERC20(WETH).balanceOf(address(this));

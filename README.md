@@ -1,5 +1,11 @@
 # PanCake Exchange Contracts 🥞
 
-PancakeFactoryV2: 0x2D86172bAA0B6537D1b96428A13DcE70B04F9737 
+PancakeFactoryV2: 0x46E9aD48575d08072E9A05a9BDE4F22973628A8E 
 
-PancakeRouterV2: 0x596C1CA32Cf3Fc5224E5cD2Daf54CFd822156761
+PancakeRouterV2: 0x63fF6f300b4faD1A8012F6B525486ffF35Ed31d3
+
+### deploy contracts
+`truffle deploy --network bsctest`
+
+### verify router contracts
+`truffle run verify PancakeRouterV2 --network bsctest`
