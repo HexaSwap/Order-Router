@@ -273,9 +273,7 @@ interface IPancakeRouter02 is IPancakeRouter01 {
         uint256 deadline
     ) external;
 
-    function swappingFeeTo() external view returns (address);
-
-    function feeToSetter() external view returns (address);
+    function setSwappingFee(uint256) external;
 
     function setSwappingFeeTo(address) external;
 
@@ -657,8 +655,9 @@ contract PancakeRouterV2 is IPancakeRouter02 {
 
     address public immutable override factory;
     address public immutable override WETH;
-    address public override feeToSetter;
-    address public override swappingFeeTo;
+    address public feeToSetter;
+    address public swappingFeeTo;
+    uint256 public swappingFee;
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "PancakeRouter: EXPIRED");
@@ -986,9 +985,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         address token,
         uint256 amount
     ) internal virtual returns (uint256 amountAdjusted) {
-        bool feeOn = swappingFeeTo != address(0);
-        if (feeOn) {
-            uint256 fee_amount = amount.mul(20).div(10000);
+        if (swappingFeeTo != address(0) && swappingFee > 0) {
+            uint256 fee_amount = amount.mul(swappingFee).div(10000);
             TransferHelper.safeTransfer(token, swappingFeeTo, fee_amount);
             amountAdjusted = amount.sub(fee_amount);
         } else {
@@ -999,9 +997,8 @@ contract PancakeRouterV2 is IPancakeRouter02 {
     function _transferETHSwappingFee(
         uint256 amount
     ) internal virtual returns (uint256 amountAdjusted) {
-        bool feeOn = swappingFeeTo != address(0);
-        if (feeOn) {
-            uint256 fee_amount = amount.mul(20).div(10000);
+        if (swappingFeeTo != address(0) && swappingFee > 0) {
+            uint256 fee_amount = amount.mul(swappingFee).div(10000);
             TransferHelper.safeTransferETH(swappingFeeTo, fee_amount);
             amountAdjusted = amount.sub(fee_amount);
         } else {
@@ -1370,6 +1367,11 @@ contract PancakeRouterV2 is IPancakeRouter02 {
         returns (uint256[] memory amounts)
     {
         return PancakeLibrary.getAmountsIn(factory, amountOut, path);
+    }
+
+    function setSwappingFee(uint256 _fee) external override {
+        require(msg.sender == feeToSetter, "Pancake: FORBIDDEN");
+        swappingFee = _fee;
     }
 
     function setSwappingFeeTo(address _feeTo) external override {
