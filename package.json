@@ -7,15 +7,49 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "npx hardhat clean",
+    "precompile": "yarn clean",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "test:coverage": "npx hardhat coverage",
+    "test:size-contracts": "npx hardhat size-contracts",
+    "deploy:tesnet": "npx hardhat deploy --network testnet",
+    "deploy:mainnet": "npx hardhat deploy --network mainnet",
+    "format:fix": "prettier --write \"**/*.+(js|jsx|ts|tsx|json|css|md)\""
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@truffle/hdwallet-provider": "^2.0.7",
-    "dotenv": "^16.0.0"
-  },
   "devDependencies": {
-    "truffle-plugin-verify": "^0.5.25"
+    "@chainlink/contracts": "0.1.7",
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/test-helpers": "^0.5.15",
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^16.11.33",
+    "@typescript-eslint/eslint-plugin": "^5.22.0",
+    "@typescript-eslint/parser": "^5.22.0",
+    "chai": "^4.3.6",
+    "chai-ethers": "^0.0.1",
+    "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "ethereum-waffle": "^3.4.4",
+    "ethereumjs-util": "^7.1.4",
+    "ethers": "^5.6.4",
+    "hardhat": "^2.9.3",
+    "hardhat-deploy": "^0.11.4",
+    "hardhat-deploy-ethers": "^0.3.0-beta.13",
+    "mocha": "^10.0.0",
+    "dotenv": "^16.0.0",
+    "prettier": "^2.6.2",
+    "prettier-plugin-solidity": "^1.0.0-dev.21",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
   }
 }
