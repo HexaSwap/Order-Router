@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts();
   // @ts-ignore
-  const factory = config.HexaFinityFactory[networkName];
+  const factory = config.PancakeFactory[networkName];
   // @ts-ignore
   const wbnb = config.WBNB[networkName];
   // @ts-ignore

@@ -1,5 +1,5 @@
 export default {
-  HexaFinityFactory: {
+  PancakeFactory: {
     mainnet: "0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73",
     testnet: "0x6725F303b657a9451d8BA641348b6761A6CC7a17",
   },
