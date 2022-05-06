@@ -1,11 +1,9 @@
 {
-  "name": "pancakeswap-faucet",
+  "name": "@hexafinity/router",
   "version": "1.0.0",
   "description": "",
-  "main": "truffle-config.js",
-  "directories": {
-    "test": "test"
-  },
+  "license": "GPL-3.0/MIT",
+  "private": true,
   "scripts": {
     "clean": "npx hardhat clean",
     "precompile": "yarn clean",
@@ -15,10 +13,10 @@
     "test:size-contracts": "npx hardhat size-contracts",
     "deploy:tesnet": "npx hardhat deploy --network testnet",
     "deploy:mainnet": "npx hardhat deploy --network mainnet",
+    "verify:testnet": "npx hardhat etherscan-verify --network testnet",
+    "verify:mainnet": "npx hardhat etherscan-verify --network mainnet",
     "format:fix": "prettier --write \"**/*.+(js|jsx|ts|tsx|json|css|md)\""
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@chainlink/contracts": "0.1.7",
     "@nomiclabs/hardhat-ethers": "^2.0.5",

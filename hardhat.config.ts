@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable node/no-missing-import */
+import 'dotenv/config';
 import { HardhatUserConfig } from 'hardhat/types';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
@@ -57,23 +58,19 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
-    staging: {
+    testnet: {
       url: node_url('testnet'),
       accounts: accounts('testnet'),
+      chainId: 97,
     },
-    production: {
+    mainnet: {
       url: node_url('mainnet'),
       accounts: accounts('mainnet'),
+      chainId: 56,
     },
   },
   namedAccounts: {
-    deployer: 0,
-    dev: 1,
-    feeSetter: 2,
-    Admin: 3,
-    operator: 4,
-    treasury: 5,
-    injector: 6,
+    deployer: '0xe5D1cb60cb065bf23d3022D02a205D829Feb9831',
   },
   paths: {
     sources: './contracts',
@@ -81,5 +78,10 @@ const config: HardhatUserConfig = {
     cache: './cache',
     artifacts: './artifacts',
   },
+  verify: {
+    etherscan: {
+      apiKey: process.env.ETHERSCAN_API_KEY
+    }
+  }
 };
 export default config;

@@ -1,6 +1,7 @@
 import { network, run } from 'hardhat';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
+import config from '../config';
 
 export const ROUTER_DID = 'ROUTER_DID';
 
@@ -16,28 +17,23 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log('Deploying HexaFinityRouter...');
 
   const { deployments, getNamedAccounts } = hre;
-  const { deploy, get } = deployments;
+  const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
-
-  const factory = await get('HexaFinityFactory');
-  const wbnb = await get('WBNB');
+  // @ts-ignore
+  const factory = config.HexaFinityFactory[networkName];
+  // @ts-ignore
+  const wbnb = config.WBNB[networkName];
+  // @ts-ignore
+  const feeToSeeter = config.FeeToSetter[networkName];
 
   const deployment = await deploy('HexaFinityRouter', {
     from: deployer,
-    args: [factory.address, wbnb.address],
+    args: [factory, wbnb, feeToSeeter],
     log: true,
   });
 
-  try {
-    await run('verify:verify', {
-      address: deployment.address,
-      constructorArguments: [factory.address, wbnb.address, ''],
-    });
-    console.log('HexaFinityRouter verify success');
-  } catch (e) {
-    console.log(e);
-  }
+  console.log('HexaFinityRouter deployed to ', deployment.address);
 };
 
 export default func;
